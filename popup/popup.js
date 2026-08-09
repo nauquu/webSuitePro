@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function createExtIconCard(ext) {
     const card = document.createElement('div');
     card.className = 'ext-icon-card';
-    card.title = `${ext.name} (v${ext.version})\n${ext.enabled ? 'Đang bật - Bấm để Tắt' : 'Đã tắt - Bấm để Bật'}`;
+    card.title = ext.name;
 
     const iconImg = document.createElement('img');
     const iconUrl = (ext.icons && ext.icons.length > 0)
