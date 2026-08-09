@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Web Suite Pro - FB Hider, Captcha Solver & YouTube NonStop",
+  "version": "1.0.0",
+  "description": "Bộ công cụ đa năng: Ẩn Quảng Cáo/Gợi ý Facebook, Chặn UID, Giải Captcha tự động (Buster Engine) và YouTube NonStop.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.facebook.com/*",
+    "https://*.youtube.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.facebook.com/*",
+        "https://*.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Web Suite Pro"
+  }
+}

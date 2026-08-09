@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FB Ad Block & UID Hider</title>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="shield-icon">⚡</div>
+        <div>
+          <h1>Web Suite Pro</h1>
+          <p class="subtitle">FB Hider • Captcha Solver • YouTube NonStop</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Controls -->
+    <div class="card toggle-card">
+      <div class="toggle-info">
+        <span class="toggle-title">Chặn Quảng Cáo</span>
+        <span class="toggle-sub">Chặn bài "Ad", "Sponsored", "Được tài trợ"</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleAds" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Toggle Unfollowed Pages -->
+    <div class="card toggle-card">
+      <div class="toggle-info">
+        <span class="toggle-title">Ẩn Page chưa Follow</span>
+        <span class="toggle-sub">Ẩn bài có nút "Follow", "Theo dõi", "Gợi ý"</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleUnfollowed" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Toggle Unjoined Groups -->
+    <div class="card toggle-card">
+      <div class="toggle-info">
+        <span class="toggle-title">Ẩn Group chưa Join</span>
+        <span class="toggle-sub">Ẩn bài có nút "Join", "Tham gia", "Gợi ý nhóm"</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleUnjoinedGroups" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Toggle Captcha Solver -->
+    <div class="card toggle-card">
+      <div class="toggle-info">
+        <span class="toggle-title">Tự động giải Captcha</span>
+        <span class="toggle-sub">Buster Engine giải audio reCAPTCHA/hCaptcha</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleCaptcha" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Toggle YouTube NonStop -->
+    <div class="card toggle-card">
+      <div class="toggle-info">
+        <span class="toggle-title">YouTube NonStop</span>
+        <span class="toggle-sub">Tự động bấm phát tiếp khi hiện thông báo tạm dừng</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleYoutube" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Stat Counter -->
+    <div class="card stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-content">
+        <span class="stat-number" id="blockedCount">0</span>
+        <span class="stat-label">Quảng cáo đã chặn</span>
+      </div>
+    </div>
+
+    <!-- UID Blocklist Section -->
+    <div class="card uid-section">
+      <div class="section-header">
+        <h3>Quản lý UID / Fanpage bị ẩn</h3>
+        <span class="badge" id="uidCountBadge">0 UID</span>
+      </div>
+
+      <!-- Add UID form -->
+      <div class="uid-input-group">
+        <input type="text" id="uidInput" placeholder="Nhập UID hoặc Link trang cá nhân..." autocomplete="off">
+        <button id="addUidBtn" class="btn-add">Thêm</button>
+      </div>
+
+      <!-- List of UIDs -->
+      <div class="uid-list-container" id="uidList">
+        <div class="empty-state" id="emptyState">
+          <span>📭</span> Chưa có UID nào trong danh sách.
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>Chrome Extension v1.0 • Manifest V3</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

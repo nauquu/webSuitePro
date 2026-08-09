@@ -1,0 +1,203 @@
+/* CSS Hide class for blocked elements (hides post content except placeholder bar) */
+.fb-ad-blocker-hidden:not(.fb-ad-blocker-revealed) > *:not(.fb-hidden-post-placeholder) {
+  display: none !important;
+}
+
+.fb-ad-blocker-hidden.fb-ad-blocker-revealed > *:not(.fb-hidden-post-placeholder) {
+  display: block !important;
+}
+
+/* Compact Placeholder Bar for Hidden Posts */
+.fb-hidden-post-placeholder {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: rgba(30, 41, 59, 0.85) !important;
+  color: #94a3b8 !important;
+  border: 1px dashed rgba(255, 255, 255, 0.15) !important;
+  border-radius: 6px !important;
+  padding: 4px 12px !important;
+  margin: 3px 0 !important;
+  font-family: inherit !important;
+  font-size: 11.5px !important;
+  backdrop-filter: blur(8px) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-height: 26px !important;
+}
+
+.fb-hidden-post-placeholder .fb-placeholder-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.fb-hidden-post-placeholder .fb-unhide-btn {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: #818cf8 !important;
+  border: 1px solid rgba(99, 102, 241, 0.4) !important;
+  border-radius: 4px !important;
+  padding: 2px 8px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.fb-hidden-post-placeholder .fb-unhide-btn:hover {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3) !important;
+}
+
+/* INSTANT ZERO-FLICKER CSS RULES (:has selector) */
+/* Hides ad containers natively at browser render time before JS even executes */
+div[role="article"]:has([aria-label="Sponsored"]),
+div[role="article"]:has([aria-label="Được tài trợ"]),
+div[role="article"]:has([aria-label="Ad"]),
+div[role="article"]:has([aria-label="Quảng cáo"]),
+div[role="article"]:has([aria-label="Advertisement"]),
+div[role="article"]:has(a[href*="/ads/about/"]),
+div[role="article"]:has(a[href*="about_this_ad"]),
+div[role="article"]:has(a[href*="facebook.com/ads/"]),
+div[role="article"]:has(a[href*="ad_id="]),
+div[role="article"]:has(a[href*="campaign_id="]),
+div[data-pagelet^="FeedUnit"]:has([aria-label="Sponsored"]),
+div[data-pagelet^="FeedUnit"]:has([aria-label="Được tài trợ"]),
+div[data-pagelet^="FeedUnit"]:has([aria-label="Ad"]),
+div[data-pagelet^="FeedUnit"]:has([aria-label="Quảng cáo"]),
+div[data-pagelet^="FeedUnit"]:has(a[href*="/ads/about/"]),
+div[data-pagelet^="FeedUnit"]:has(a[href*="about_this_ad"]),
+div[aria-posinset]:has([aria-label="Sponsored"]),
+div[aria-posinset]:has([aria-label="Được tài trợ"]),
+div[aria-posinset]:has([aria-label="Ad"]),
+div[aria-posinset]:has([aria-label="Quảng cáo"]),
+div[aria-posinset]:has(a[href*="/ads/about/"]),
+div[role="complementary"] [data-pagelet*="Ad"] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Injected Block UID Button styling on Facebook Wall */
+.fb-block-uid-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(220, 38, 38, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-left: 8px;
+  font-family: inherit;
+  user-select: none;
+}
+
+.fb-block-uid-btn:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  transform: translateY(-1px);
+}
+
+.fb-block-uid-btn:active {
+  transform: translateY(0);
+}
+
+.fb-block-uid-btn.is-blocked {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.fb-block-uid-btn.is-blocked:hover {
+  background-color: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Toast notification styling */
+.fb-block-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(15, 23, 42, 0.95);
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fbBlockToastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fbBlockToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fb-block-toast-out {
+  animation: fbBlockToastOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fbBlockToastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+}
+
+/* Injected Menu item in 3-dots post menu */
+.fb-menu-block-uid {
+  padding: 8px 14px !important;
+  cursor: pointer !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  margin-bottom: 4px !important;
+  transition: background-color 0.15s ease-in-out !important;
+  border-radius: 6px !important;
+}
+
+.fb-menu-block-uid:hover {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+.fb-menu-item-inner {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  color: #ef4444 !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+}
