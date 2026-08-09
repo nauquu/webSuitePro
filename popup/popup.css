@@ -347,6 +347,12 @@ input:checked + .slider:before {
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
+#tabMainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .tab-content-hidden {
   display: none !important;
 }
