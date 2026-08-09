@@ -185,6 +185,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Open Side Panel button event listener
+  const openSidebarBtn = document.getElementById('openSidebarBtn');
+  if (openSidebarBtn) {
+    openSidebarBtn.addEventListener('click', () => {
+      if (typeof chrome !== 'undefined' && chrome.sidePanel && chrome.sidePanel.open) {
+        chrome.windows.getCurrent((win) => {
+          chrome.sidePanel.open({ windowId: win.id }).catch(() => {});
+          window.close();
+        });
+      } else {
+        alert('Trình duyệt hiện tại chưa hỗ trợ mở Side Panel trực tiếp!');
+      }
+    });
+  }
+
   // Tab Navigation Listeners
   const tabMainBtn = document.getElementById('tabMainBtn');
   const tabExtBtn = document.getElementById('tabExtBtn');
