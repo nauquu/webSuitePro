@@ -212,7 +212,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const extSearchInput = document.getElementById('extSearchInput');
   const enableAllExtBtn = document.getElementById('enableAllExtBtn');
   const disableAllExtBtn = document.getElementById('disableAllExtBtn');
-  const extListContainer = document.getElementById('extListContainer');
+  const enabledExtGrid = document.getElementById('enabledExtGrid');
+  const disabledExtGrid = document.getElementById('disabledExtGrid');
+  const enabledCountBadge = document.getElementById('enabledCountBadge');
+  const disabledCountBadge = document.getElementById('disabledCountBadge');
 
   let allExtensions = [];
 
@@ -226,8 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderExtensionManager() {
-    if (!extListContainer) return;
-    extListContainer.innerHTML = '';
+    if (!enabledExtGrid || !disabledExtGrid) return;
+    enabledExtGrid.innerHTML = '';
+    disabledExtGrid.innerHTML = '';
 
     const query = (extSearchInput?.value || '').toLowerCase().trim();
 
@@ -235,67 +239,51 @@ document.addEventListener('DOMContentLoaded', () => {
       return ext.name.toLowerCase().includes(query);
     });
 
-    if (filtered.length === 0) {
-      extListContainer.innerHTML = `<div class="empty-state">Không tìm thấy extension phù hợp.</div>`;
-      return;
+    const enabledList = filtered.filter(ext => ext.enabled);
+    const disabledList = filtered.filter(ext => !ext.enabled);
+
+    if (enabledCountBadge) enabledCountBadge.textContent = enabledList.length;
+    if (disabledCountBadge) disabledCountBadge.textContent = disabledList.length;
+
+    if (enabledList.length === 0) {
+      enabledExtGrid.innerHTML = `<div class="empty-state">Không có extension nào.</div>`;
+    } else {
+      enabledList.forEach(ext => {
+        enabledExtGrid.appendChild(createExtIconCard(ext));
+      });
     }
 
-    filtered.forEach(ext => {
-      const item = document.createElement('div');
-      item.className = 'ext-item';
-
-      const info = document.createElement('div');
-      info.className = 'ext-info';
-
-      const iconImg = document.createElement('img');
-      iconImg.className = 'ext-icon';
-      const iconUrl = (ext.icons && ext.icons.length > 0) 
-        ? ext.icons[ext.icons.length - 1].url 
-        : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2394a3b8"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>';
-      iconImg.src = iconUrl;
-
-      const details = document.createElement('div');
-      details.className = 'ext-details';
-
-      const name = document.createElement('span');
-      name.className = 'ext-name';
-      name.textContent = ext.name;
-      name.title = ext.name;
-
-      const ver = document.createElement('span');
-      ver.className = 'ext-version';
-      ver.textContent = `v${ext.version}`;
-
-      details.appendChild(name);
-      details.appendChild(ver);
-      info.appendChild(iconImg);
-      info.appendChild(details);
-
-      // Switch toggle
-      const switchLabel = document.createElement('label');
-      switchLabel.className = 'switch';
-
-      const check = document.createElement('input');
-      check.type = 'checkbox';
-      check.checked = ext.enabled;
-
-      check.addEventListener('change', (e) => {
-        const isEnabled = e.target.checked;
-        chrome.management.setEnabled(ext.id, isEnabled, () => {
-          ext.enabled = isEnabled;
-        });
+    if (disabledList.length === 0) {
+      disabledExtGrid.innerHTML = `<div class="empty-state">Không có extension nào.</div>`;
+    } else {
+      disabledList.forEach(ext => {
+        disabledExtGrid.appendChild(createExtIconCard(ext));
       });
+    }
+  }
 
-      const slider = document.createElement('span');
-      slider.className = 'slider';
+  // Create Icon Button for an Extension (Only icon, hover displays name & version tooltip)
+  function createExtIconCard(ext) {
+    const card = document.createElement('div');
+    card.className = 'ext-icon-card';
+    card.title = `${ext.name} (v${ext.version})\n${ext.enabled ? 'Đang bật - Bấm để Tắt' : 'Đã tắt - Bấm để Bật'}`;
 
-      switchLabel.appendChild(check);
-      switchLabel.appendChild(slider);
+    const iconImg = document.createElement('img');
+    const iconUrl = (ext.icons && ext.icons.length > 0)
+      ? ext.icons[ext.icons.length - 1].url
+      : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2394a3b8"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>';
+    iconImg.src = iconUrl;
+    card.appendChild(iconImg);
 
-      item.appendChild(info);
-      item.appendChild(switchLabel);
-      extListContainer.appendChild(item);
+    card.addEventListener('click', () => {
+      const targetState = !ext.enabled;
+      chrome.management.setEnabled(ext.id, targetState, () => {
+        ext.enabled = targetState;
+        renderExtensionManager();
+      });
     });
+
+    return card;
   }
 
   if (extSearchInput) {

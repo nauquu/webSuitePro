@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,10 @@
   <link rel="stylesheet" href="popup.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 </head>
+
 <body>
   <div class="container">
     <!-- Header -->
@@ -132,18 +135,33 @@
           </div>
         </div>
 
-        <div class="ext-list-container" id="extListContainer">
-          <!-- Dynamically populated extension list -->
+        <!-- Zone 1: Enabled Extensions -->
+        <div class="ext-zone">
+          <div class="ext-zone-header">
+            <span>Đang bật</span>
+            <span class="badge badge-enabled" id="enabledCountBadge">0</span>
+          </div>
+          <div class="ext-icon-grid" id="enabledExtGrid"></div>
+        </div>
+
+        <!-- Zone 2: Disabled Extensions -->
+        <div class="ext-zone">
+          <div class="ext-zone-header">
+            <span>Đã tắt</span>
+            <span class="badge badge-disabled" id="disabledCountBadge">0</span>
+          </div>
+          <div class="ext-icon-grid" id="disabledExtGrid"></div>
         </div>
       </div>
     </div>
 
     <!-- Footer -->
     <footer class="app-footer">
-      <span>Web Suite Pro v1.0 • Chrome Extension Manager</span>
+      <span>Web Suite Pro v1.0</span>
     </footer>
   </div>
 
   <script src="popup.js"></script>
 </body>
+
 </html>
