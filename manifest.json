@@ -5,7 +5,8 @@
   "description": "Bộ công cụ đa năng: Ẩn Quảng Cáo/Gợi ý Facebook, Chặn UID, Giải Captcha tự động (Buster Engine) và YouTube NonStop.",
   "permissions": [
     "storage",
-    "management"
+    "management",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://*.facebook.com/*",
@@ -29,5 +30,8 @@
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Web Suite Pro"
+  },
+  "side_panel": {
+    "default_path": "popup/popup.html"
   }
 }
