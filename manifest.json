@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "Bộ công cụ đa năng: Ẩn Quảng Cáo/Gợi ý Facebook, Chặn UID, Giải Captcha tự động (Buster Engine) và YouTube NonStop.",
   "permissions": [
-    "storage"
+    "storage",
+    "management"
   ],
   "host_permissions": [
     "https://*.facebook.com/*",

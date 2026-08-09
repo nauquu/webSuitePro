@@ -185,19 +185,148 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Listen for storage changes
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync') {
-      if (changes.blockedCount) {
-        state.blockedCount = changes.blockedCount.newValue || 0;
-        blockedCountEl.textContent = state.blockedCount.toLocaleString();
-      }
-      if (changes.blockedUids) {
-        state.blockedUids = changes.blockedUids.newValue || [];
-        renderUidList();
-      }
+  // Tab Navigation Listeners
+  const tabMainBtn = document.getElementById('tabMainBtn');
+  const tabExtBtn = document.getElementById('tabExtBtn');
+  const tabMainContent = document.getElementById('tabMainContent');
+  const tabExtContent = document.getElementById('tabExtContent');
+
+  if (tabMainBtn && tabExtBtn) {
+    tabMainBtn.addEventListener('click', () => {
+      tabMainBtn.classList.add('active');
+      tabExtBtn.classList.remove('active');
+      tabMainContent.classList.remove('tab-content-hidden');
+      tabExtContent.classList.add('tab-content-hidden');
+    });
+
+    tabExtBtn.addEventListener('click', () => {
+      tabExtBtn.classList.add('active');
+      tabMainBtn.classList.remove('active');
+      tabExtContent.classList.remove('tab-content-hidden');
+      tabMainContent.classList.add('tab-content-hidden');
+      loadExtensionManager();
+    });
+  }
+
+  // Extension Manager Engine
+  const extSearchInput = document.getElementById('extSearchInput');
+  const enableAllExtBtn = document.getElementById('enableAllExtBtn');
+  const disableAllExtBtn = document.getElementById('disableAllExtBtn');
+  const extListContainer = document.getElementById('extListContainer');
+
+  let allExtensions = [];
+
+  function loadExtensionManager() {
+    if (typeof chrome === 'undefined' || !chrome.management) return;
+
+    chrome.management.getAll((extensions) => {
+      allExtensions = extensions.sort((a, b) => a.name.localeCompare(b.name));
+      renderExtensionManager();
+    });
+  }
+
+  function renderExtensionManager() {
+    if (!extListContainer) return;
+    extListContainer.innerHTML = '';
+
+    const query = (extSearchInput?.value || '').toLowerCase().trim();
+
+    const filtered = allExtensions.filter(ext => {
+      return ext.name.toLowerCase().includes(query);
+    });
+
+    if (filtered.length === 0) {
+      extListContainer.innerHTML = `<div class="empty-state">Không tìm thấy extension phù hợp.</div>`;
+      return;
     }
-  });
+
+    filtered.forEach(ext => {
+      const item = document.createElement('div');
+      item.className = 'ext-item';
+
+      const info = document.createElement('div');
+      info.className = 'ext-info';
+
+      const iconImg = document.createElement('img');
+      iconImg.className = 'ext-icon';
+      const iconUrl = (ext.icons && ext.icons.length > 0) 
+        ? ext.icons[ext.icons.length - 1].url 
+        : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2394a3b8"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>';
+      iconImg.src = iconUrl;
+
+      const details = document.createElement('div');
+      details.className = 'ext-details';
+
+      const name = document.createElement('span');
+      name.className = 'ext-name';
+      name.textContent = ext.name;
+      name.title = ext.name;
+
+      const ver = document.createElement('span');
+      ver.className = 'ext-version';
+      ver.textContent = `v${ext.version}`;
+
+      details.appendChild(name);
+      details.appendChild(ver);
+      info.appendChild(iconImg);
+      info.appendChild(details);
+
+      // Switch toggle
+      const switchLabel = document.createElement('label');
+      switchLabel.className = 'switch';
+
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.checked = ext.enabled;
+
+      check.addEventListener('change', (e) => {
+        const isEnabled = e.target.checked;
+        chrome.management.setEnabled(ext.id, isEnabled, () => {
+          ext.enabled = isEnabled;
+        });
+      });
+
+      const slider = document.createElement('span');
+      slider.className = 'slider';
+
+      switchLabel.appendChild(check);
+      switchLabel.appendChild(slider);
+
+      item.appendChild(info);
+      item.appendChild(switchLabel);
+      extListContainer.appendChild(item);
+    });
+  }
+
+  if (extSearchInput) {
+    extSearchInput.addEventListener('input', renderExtensionManager);
+  }
+
+  if (enableAllExtBtn) {
+    enableAllExtBtn.addEventListener('click', () => {
+      if (typeof chrome === 'undefined' || !chrome.management) return;
+      allExtensions.forEach(ext => {
+        if (!ext.enabled) {
+          chrome.management.setEnabled(ext.id, true);
+          ext.enabled = true;
+        }
+      });
+      renderExtensionManager();
+    });
+  }
+
+  if (disableAllExtBtn) {
+    disableAllExtBtn.addEventListener('click', () => {
+      if (typeof chrome === 'undefined' || !chrome.management) return;
+      allExtensions.forEach(ext => {
+        if (ext.id !== chrome.runtime.id && ext.enabled) {
+          chrome.management.setEnabled(ext.id, false);
+          ext.enabled = false;
+        }
+      });
+      renderExtensionManager();
+    });
+  }
 
   // Initial load
   loadState();

@@ -22,99 +22,125 @@
       </div>
     </header>
 
-    <!-- Main Controls -->
-    <div class="card toggle-card">
-      <div class="toggle-info">
-        <span class="toggle-title">Chặn Quảng Cáo</span>
-        <span class="toggle-sub">Chặn bài "Ad", "Sponsored", "Được tài trợ"</span>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleAds" checked>
-        <span class="slider"></span>
-      </label>
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn active" id="tabMainBtn">Web Suite Pro</button>
+      <button class="tab-btn" id="tabExtBtn">Quản lý Extension</button>
     </div>
 
-    <!-- Toggle Unfollowed Pages -->
-    <div class="card toggle-card">
-      <div class="toggle-info">
-        <span class="toggle-title">Ẩn Page chưa Follow</span>
-        <span class="toggle-sub">Ẩn bài có nút "Follow", "Theo dõi", "Gợi ý"</span>
+    <!-- Tab 1: Main Web Suite Pro Content -->
+    <div id="tabMainContent">
+      <!-- Main Controls -->
+      <div class="card toggle-card">
+        <div class="toggle-info">
+          <span class="toggle-title">Chặn Quảng Cáo</span>
+          <span class="toggle-sub">Chặn bài "Ad", "Sponsored", "Được tài trợ"</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleAds" checked>
+          <span class="slider"></span>
+        </label>
       </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleUnfollowed" checked>
-        <span class="slider"></span>
-      </label>
+
+      <!-- Toggle Unfollowed Pages -->
+      <div class="card toggle-card">
+        <div class="toggle-info">
+          <span class="toggle-title">Ẩn Page chưa Follow</span>
+          <span class="toggle-sub">Ẩn bài có nút "Follow", "Theo dõi", "Gợi ý"</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleUnfollowed" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Toggle Unjoined Groups -->
+      <div class="card toggle-card">
+        <div class="toggle-info">
+          <span class="toggle-title">Ẩn Group chưa Join</span>
+          <span class="toggle-sub">Ẩn bài có nút "Join", "Tham gia", "Gợi ý nhóm"</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleUnjoinedGroups" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Toggle Captcha Solver -->
+      <div class="card toggle-card">
+        <div class="toggle-info">
+          <span class="toggle-title">Tự động giải Captcha</span>
+          <span class="toggle-sub">Buster Engine giải audio reCAPTCHA/hCaptcha</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleCaptcha" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Toggle YouTube NonStop -->
+      <div class="card toggle-card">
+        <div class="toggle-info">
+          <span class="toggle-title">YouTube NonStop</span>
+          <span class="toggle-sub">Tự động bấm phát tiếp khi hiện thông báo tạm dừng</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleYoutube" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Stat Counter -->
+      <div class="card stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-content">
+          <span class="stat-number" id="blockedCount">0</span>
+          <span class="stat-label">Quảng cáo đã chặn</span>
+        </div>
+      </div>
+
+      <!-- UID Blocklist Section -->
+      <div class="card uid-section">
+        <div class="section-header">
+          <h3>Quản lý UID / Fanpage bị ẩn</h3>
+          <span class="badge" id="uidCountBadge">0 UID</span>
+        </div>
+
+        <!-- Add UID form -->
+        <div class="uid-input-group">
+          <input type="text" id="uidInput" placeholder="Nhập UID hoặc Link trang cá nhân..." autocomplete="off">
+          <button id="addUidBtn" class="btn-add">Thêm</button>
+        </div>
+
+        <!-- List of UIDs -->
+        <div class="uid-list-container" id="uidList">
+          <div class="empty-state" id="emptyState">
+            <span>📭</span> Chưa có UID nào trong danh sách.
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Toggle Unjoined Groups -->
-    <div class="card toggle-card">
-      <div class="toggle-info">
-        <span class="toggle-title">Ẩn Group chưa Join</span>
-        <span class="toggle-sub">Ẩn bài có nút "Join", "Tham gia", "Gợi ý nhóm"</span>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleUnjoinedGroups" checked>
-        <span class="slider"></span>
-      </label>
-    </div>
+    <!-- Tab 2: Extension Manager Content -->
+    <div id="tabExtContent" class="tab-content-hidden">
+      <div class="card ext-manager-section">
+        <div class="ext-search-group">
+          <input type="text" id="extSearchInput" placeholder="Tìm kiếm Extension..." autocomplete="off">
+          <div class="ext-batch-actions">
+            <button id="enableAllExtBtn" class="btn-batch">Bật tất cả</button>
+            <button id="disableAllExtBtn" class="btn-batch btn-disable-all">Tắt tất cả</button>
+          </div>
+        </div>
 
-    <!-- Toggle Captcha Solver -->
-    <div class="card toggle-card">
-      <div class="toggle-info">
-        <span class="toggle-title">Tự động giải Captcha</span>
-        <span class="toggle-sub">Buster Engine giải audio reCAPTCHA/hCaptcha</span>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleCaptcha" checked>
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <!-- Toggle YouTube NonStop -->
-    <div class="card toggle-card">
-      <div class="toggle-info">
-        <span class="toggle-title">YouTube NonStop</span>
-        <span class="toggle-sub">Tự động bấm phát tiếp khi hiện thông báo tạm dừng</span>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="toggleYoutube" checked>
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <!-- Stat Counter -->
-    <div class="card stat-card">
-      <div class="stat-icon">⚡</div>
-      <div class="stat-content">
-        <span class="stat-number" id="blockedCount">0</span>
-        <span class="stat-label">Quảng cáo đã chặn</span>
-      </div>
-    </div>
-
-    <!-- UID Blocklist Section -->
-    <div class="card uid-section">
-      <div class="section-header">
-        <h3>Quản lý UID / Fanpage bị ẩn</h3>
-        <span class="badge" id="uidCountBadge">0 UID</span>
-      </div>
-
-      <!-- Add UID form -->
-      <div class="uid-input-group">
-        <input type="text" id="uidInput" placeholder="Nhập UID hoặc Link trang cá nhân..." autocomplete="off">
-        <button id="addUidBtn" class="btn-add">Thêm</button>
-      </div>
-
-      <!-- List of UIDs -->
-      <div class="uid-list-container" id="uidList">
-        <div class="empty-state" id="emptyState">
-          <span>📭</span> Chưa có UID nào trong danh sách.
+        <div class="ext-list-container" id="extListContainer">
+          <!-- Dynamically populated extension list -->
         </div>
       </div>
     </div>
 
     <!-- Footer -->
     <footer class="app-footer">
-      <span>Chrome Extension v1.0 • Manifest V3</span>
+      <span>Web Suite Pro v1.0 • Chrome Extension Manager</span>
     </footer>
   </div>
 
