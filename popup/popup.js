@@ -275,6 +275,24 @@ document.addEventListener('DOMContentLoaded', () => {
     iconImg.src = iconUrl;
     card.appendChild(iconImg);
 
+    // Quick Uninstall button on hover (Small red cross)
+    if (ext.id !== chrome.runtime?.id) {
+      const delBtn = document.createElement('span');
+      delBtn.className = 'ext-delete-btn';
+      delBtn.textContent = '✕';
+      delBtn.title = `Gỡ cài đặt ${ext.name}`;
+
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        chrome.management.uninstall(ext.id, { showConfirmDialog: true }, () => {
+          allExtensions = allExtensions.filter(item => item.id !== ext.id);
+          renderExtensionManager();
+        });
+      });
+
+      card.appendChild(delBtn);
+    }
+
     card.addEventListener('click', () => {
       const targetState = !ext.enabled;
       chrome.management.setEnabled(ext.id, targetState, () => {
