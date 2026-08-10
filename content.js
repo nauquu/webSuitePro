@@ -46,7 +46,7 @@
       : '';
   }
 
-  // Check if current page is Messenger OR if element is inside a Messenger chat window/dialog/sidebar
+  // Check if current page is Messenger OR if element is inside any Messenger chat window/dialog/sidebar/bubble
   function isMessengerElement(el) {
     if (window.location.href.includes('/messages/')) return true;
     if (!el) return false;
@@ -55,7 +55,8 @@
         'div[role="dialog"], div[aria-label*="Chat" i], div[aria-label*="Trò chuyện" i], ' +
         'div[aria-label*="Messenger" i], div[data-pagelet^="ChatTab"], div[role="region"][aria-label*="Chat" i], ' +
         'div[role="region"][aria-label*="Trò chuyện" i], [aria-label="Cuộc trò chuyện"], [aria-label="Chats"], ' +
-        'div[class*="messenger" i], div[class*="Chat" i], [data-testid*="messenger" i], [data-testid*="chat" i]'
+        'div[class*="messenger" i], div[class*="Chat" i], [data-testid*="messenger" i], [data-testid*="chat" i], ' +
+        'div[data-scope="messages_table"], div[role="gridcell"], div[role="row"], div[class*="message" i], [aria-label="Tin nhắn"]'
       )) {
         return true;
       }
@@ -450,7 +451,7 @@
 
   // Inject placeholder bar with "Xem bài viết" button
   function injectPlaceholderBar(post, reasonText) {
-    if (!post || post.querySelector('.fb-hidden-post-placeholder')) return;
+    if (!post || isMessengerElement(post) || isCommentElement(post) || post.querySelector('.fb-hidden-post-placeholder')) return;
 
     const bar = document.createElement('div');
     bar.className = 'fb-hidden-post-placeholder';
@@ -606,8 +607,9 @@
     );
 
     adTargets.forEach(target => {
+      if (isMessengerElement(target) || isCommentElement(target)) return;
       const post = getPostContainer(target);
-      if (post && !post.classList.contains('fb-ad-blocker-hidden')) {
+      if (post && !isMessengerElement(post) && !isCommentElement(post) && !post.classList.contains('fb-ad-blocker-hidden')) {
         post.classList.add('fb-ad-blocker-hidden', 'fb-ad-blocker-checked');
         injectPlaceholderBar(post, 'Bài viết Quảng cáo đã bị ẩn');
         config.blockedCount++;
@@ -619,10 +621,11 @@
     const ariaLabelledNodes = document.querySelectorAll('[aria-labelledby]');
     const adRegex = /^(Ad|Sponsored|Được tài trợ|Quảng cáo)(\s*[\cdot•·|\n\r]|$)/i;
     ariaLabelledNodes.forEach(node => {
+      if (isMessengerElement(node) || isCommentElement(node)) return;
       const text = getAriaLabelledbyText(node);
       if (adRegex.test(text) || text === 'Ad' || text === 'Sponsored' || text === 'Được tài trợ') {
         const post = getPostContainer(node);
-        if (post && !post.classList.contains('fb-ad-blocker-hidden')) {
+        if (post && !isMessengerElement(post) && !isCommentElement(post) && !post.classList.contains('fb-ad-blocker-hidden')) {
           post.classList.add('fb-ad-blocker-hidden', 'fb-ad-blocker-checked');
           injectPlaceholderBar(post, 'Bài viết Quảng cáo đã bị ẩn');
           config.blockedCount++;
@@ -632,7 +635,11 @@
     });
 
     const sidebars = document.querySelectorAll('div[role="complementary"] [data-pagelet*="Ad"], div[aria-label="Sponsored"], div[aria-label="Được tài trợ"]');
-    sidebars.forEach(el => el.classList.add('fb-ad-blocker-hidden'));
+    sidebars.forEach(el => {
+      if (!isMessengerElement(el) && !isCommentElement(el)) {
+        el.classList.add('fb-ad-blocker-hidden');
+      }
+    });
   }
 
   // Inject "Block this UID" button when viewing a Wall/Profile page
