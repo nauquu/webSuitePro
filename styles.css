@@ -53,17 +53,7 @@
 }
 
 /* INSTANT ZERO-FLICKER CSS RULES (:has selector) */
-/* Hides ad containers natively at browser render time before JS even executes */
-div[role="article"]:has([aria-label="Sponsored"]),
-div[role="article"]:has([aria-label="Được tài trợ"]),
-div[role="article"]:has([aria-label="Ad"]),
-div[role="article"]:has([aria-label="Quảng cáo"]),
-div[role="article"]:has([aria-label="Advertisement"]),
-div[role="article"]:has(a[href*="/ads/about/"]),
-div[role="article"]:has(a[href*="about_this_ad"]),
-div[role="article"]:has(a[href*="facebook.com/ads/"]),
-div[role="article"]:has(a[href*="ad_id="]),
-div[role="article"]:has(a[href*="campaign_id="]),
+/* Hides ad containers natively at browser render time, guarded against comments and Messenger */
 div[data-pagelet^="FeedUnit"]:has([aria-label="Sponsored"]),
 div[data-pagelet^="FeedUnit"]:has([aria-label="Được tài trợ"]),
 div[data-pagelet^="FeedUnit"]:has([aria-label="Ad"]),
@@ -75,6 +65,8 @@ div[aria-posinset]:has([aria-label="Được tài trợ"]),
 div[aria-posinset]:has([aria-label="Ad"]),
 div[aria-posinset]:has([aria-label="Quảng cáo"]),
 div[aria-posinset]:has(a[href*="/ads/about/"]),
+div[data-dedup-key]:has([aria-label="Sponsored"]),
+div[data-dedup-key]:has([aria-label="Được tài trợ"]),
 div[role="complementary"] [data-pagelet*="Ad"] {
   display: none !important;
   visibility: hidden !important;
