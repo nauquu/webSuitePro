@@ -51,14 +51,21 @@
     if (window.location.href.includes('/messages/')) return true;
     if (!el) return false;
     try {
+      // 1. Direct check using HTML attributes/CSS variables found in Messenger chat DOM
       if (el.closest(
         'div[role="dialog"], div[aria-label*="Chat" i], div[aria-label*="Trò chuyện" i], ' +
         'div[aria-label*="Messenger" i], div[aria-label*="Đoạn chat" i], div[data-pagelet*="Chat"], ' +
         'div[data-pagelet*="Dock"], div[data-pagelet*="Message"], div[role="region"][aria-label*="Chat" i], ' +
         'div[role="region"][aria-label*="Trò chuyện" i], [aria-label="Cuộc trò chuyện"], [aria-label="Chats"], ' +
         'div[class*="messenger" i], div[class*="Chat" i], [data-testid*="messenger" i], [data-testid*="chat" i], ' +
-        'div[data-scope="messages_table"], div[role="gridcell"], div[role="row"], div[class*="message" i], [aria-label="Tin nhắn"]'
+        'div[data-scope="messages_table"], div[role="gridcell"], div[role="row"], div[class*="message" i], [aria-label="Tin nhắn"], ' +
+        'div[data-message-id], a[href*="/messenger_media/"], a[href*="thread_id="], div[style*="--chat-"]'
       )) {
+        return true;
+      }
+      
+      // 2. Check if element itself contains inline style with --chat- variables or message attributes
+      if (el.hasAttribute && (el.hasAttribute('data-message-id') || (el.getAttribute('style') || '').includes('--chat-'))) {
         return true;
       }
     } catch (e) {}
