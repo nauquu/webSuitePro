@@ -13,7 +13,7 @@
     blockedCount: 0
   };
 
-  // Inject dynamic CSS rules for blocked UIDs so browser engine hides them with ZERO delay
+  // Inject dynamic CSS rules for blocked UIDs so browser engine hides them with ZERO delay (Guarded against matching comments)
   function updateDynamicUidCss() {
     let style = document.getElementById('fb-blocked-uids-style');
     if (!style) {
@@ -34,14 +34,31 @@
       const lower = clean.toLowerCase();
       // Safeguard: Never match system routes or generic group/page words
       if (clean && lower !== 'groups' && lower !== 'pages' && lower !== 'posts') {
-        selectors.push(`div[role="article"]:has(a[href*="/user/${clean}"])`);
-        selectors.push(`div[role="article"]:has(a[href*="/${clean}"])`);
-        selectors.push(`div[role="article"]:has(a[href*="id=${clean}"])`);
+        selectors.push(`div[data-pagelet^="FeedUnit"]:has(a[href*="/user/${clean}"])`);
+        selectors.push(`div[aria-posinset]:has(a[href*="/user/${clean}"])`);
+        selectors.push(`div[data-dedup-key]:has(a[href*="/user/${clean}"])`);
+        selectors.push(`div[data-pagelet^="FeedUnit"]:has(a[href*="/${clean}"])`);
+        selectors.push(`div[aria-posinset]:has(a[href*="/${clean}"])`);
       }
     });
     style.textContent = selectors.length > 0 
       ? `${selectors.join(',')}{display:none!important;visibility:hidden!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}` 
       : '';
+  }
+
+  // Check if an element or container is inside a Comment section or IS a comment item
+  function isCommentElement(el) {
+    if (!el) return false;
+    try {
+      if (el.closest(
+        'div[aria-label*="bình luận" i], div[aria-label*="comment" i], ' +
+        'ul[class*="comment" i], div[class*="comment" i], form, ' +
+        '[aria-label="Bình luận"], [aria-label="Comments"], [aria-label="Viết bình luận..."]'
+      )) {
+        return true;
+      }
+    } catch (e) {}
+    return false;
   }
 
   // Force rescan all existing posts on screen when UID blocklist changes
@@ -247,21 +264,37 @@
     return orderedChars.filter(Boolean).join('').trim();
   }
 
-  // Target post container (Strictly guarded against targeting feed/page layout containers)
+  // Target post container (Strictly guarded against targeting comments or inner elements)
   function getPostContainer(node) {
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return null;
 
     const unsafeRoles = ['feed', 'main', 'navigation', 'banner', 'complementary', 'grid', 'table'];
 
-    // SINGLE combined selector so .closest() checks depth 1, depth 2, etc. for the NEAREST match
-    let container = node.closest('div[role="article"], div[data-pagelet^="FeedUnit"], div[aria-posinset], div[data-dedup-key]');
+    // 1. First search for top-level Feed Unit containers
+    let container = node.closest('div[data-pagelet^="FeedUnit"], div[aria-posinset], div[data-dedup-key]');
+
+    // 2. Fallback to div[role="article"], BUT pick top-most container and exclude comments
+    if (!container) {
+      const articles = [];
+      let curr = node.closest('div[role="article"]');
+      while (curr) {
+        if (!isCommentElement(curr)) {
+          articles.push(curr);
+        }
+        curr = curr.parentElement ? curr.parentElement.closest('div[role="article"]') : null;
+      }
+      if (articles.length > 0) {
+        container = articles[articles.length - 1];
+      }
+    }
 
     if (container) {
+      if (isCommentElement(container)) return null;
+
       const role = container.getAttribute('role');
       if (unsafeRoles.includes(role) || container.nodeName === 'BODY' || container.nodeName === 'HTML') {
         return null;
       }
-      // Safety height check: A single post card is rarely taller than 3500px
       if (container.offsetHeight > 3500) {
         return null;
       }
@@ -382,9 +415,11 @@
   // Check if post belongs to a blocked UID
   function isBlockedUidPost(post) {
     if (!config.blockedUids || config.blockedUids.length === 0) return false;
+    if (isCommentElement(post)) return false;
 
-    const links = post.querySelectorAll('a[role="link"], a[href*="facebook.com/"], a[href^="/"]');
+    const links = post.querySelectorAll('h4 a, h5 a, [role="heading"] a, div[dir="auto"] a, a[role="link"]');
     for (let link of links) {
+      if (isCommentElement(link)) continue;
       const href = link.getAttribute('href') || '';
       const uid = extractUidFromUrl(href);
       
@@ -445,6 +480,7 @@
   // Check if post is from an unfollowed page or suggested page
   function isUnfollowedPagePost(post) {
     if (!config.blockUnfollowedPagesEnabled) return false;
+    if (isCommentElement(post)) return false;
 
     // IMPORTANT: Exclude Group posts! Members in groups have "Follow" button next to their name
     if (isGroupPost(post)) return false;
@@ -452,6 +488,7 @@
     // 1. Check aria-label of buttons inside post header (Follow / Theo dõi)
     const ariaBtns = post.querySelectorAll('[aria-label]');
     for (let btn of ariaBtns) {
+      if (isCommentElement(btn)) continue;
       const label = (btn.getAttribute('aria-label') || '').trim().toLowerCase();
       if (label === 'follow' || label === 'theo dõi' || label.startsWith('follow ') || label.startsWith('theo dõi ')) {
         return true;
@@ -463,6 +500,7 @@
     const suggestRegex = /^(Suggested for you|Được đề xuất|Gợi ý cho bạn|Được đề xuất cho bạn|Popular near you|Phổ biến ở gần bạn)$/i;
 
     for (let el of headerElements) {
+      if (isCommentElement(el)) continue;
       const txt = getRawText(el);
       if (suggestRegex.test(txt) || txt === 'Follow' || txt === 'Theo dõi' || txt === '• Follow' || txt === '• Theo dõi' || txt === '· Follow' || txt === '· Theo dõi') {
         return true;
@@ -475,6 +513,7 @@
   // Check if post is from an unjoined Group (Contains "Join" / "Tham gia" button or Group recommendation label)
   function isUnjoinedGroupPost(post) {
     if (!config.blockUnjoinedGroupsEnabled) return false;
+    if (isCommentElement(post)) return false;
 
     // Do NOT apply if user is currently inside a Group page URL directly
     if (window.location.href.includes('/groups/')) return false;
@@ -482,6 +521,7 @@
     // 1. Check aria-label of buttons inside post header (Join / Tham gia)
     const ariaBtns = post.querySelectorAll('[aria-label]');
     for (let btn of ariaBtns) {
+      if (isCommentElement(btn)) continue;
       const label = (btn.getAttribute('aria-label') || '').trim().toLowerCase();
       if (label === 'join' || label === 'tham gia' || label === 'join group' || label === 'tham gia nhóm' ||
           label.startsWith('join ') || label.startsWith('tham gia ')) {
@@ -494,6 +534,7 @@
     const suggestGroupRegex = /^(Suggested group|Nhóm được đề xuất|Groups suggested for you|Nhóm gợi ý cho bạn|Join group|Tham gia nhóm)$/i;
 
     for (let el of headerElements) {
+      if (isCommentElement(el)) continue;
       const txt = getRawText(el);
       if (suggestGroupRegex.test(txt) || txt === 'Join' || txt === 'Tham gia' || txt === '• Join' || txt === '• Tham gia' || txt === '· Join' || txt === '· Tham gia') {
         return true;
@@ -506,6 +547,7 @@
   // Process single post element
   function processPost(post) {
     if (!post || post.classList.contains('fb-ad-blocker-checked')) return;
+    if (isCommentElement(post)) return;
 
     let shouldHide = false;
     let hideReason = '';
