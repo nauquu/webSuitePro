@@ -349,6 +349,141 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Cookie Import Event Listeners & Logic
+  const importCookieBtn = document.getElementById('importCookieBtn');
+  const clearCookieBtn = document.getElementById('clearCookieBtn');
+  const cookieArea = document.getElementById('cookieArea');
+  const cookieDomainInput = document.getElementById('cookieDomainInput');
+  const cookieStatusBadge = document.getElementById('cookieStatusBadge');
+
+  if (importCookieBtn && cookieArea) {
+    importCookieBtn.addEventListener('click', async () => {
+      const raw = cookieArea.value || '';
+      const domainVal = (cookieDomainInput ? cookieDomainInput.value : '') || '.facebook.com';
+      if (!raw.trim()) {
+        alert('Vui lòng dán chuỗi Cookie hoặc JSON vào ô nhập!');
+        return;
+      }
+
+      const cookieList = parseCookies(raw, domainVal);
+      if (cookieList.length === 0) {
+        alert('Không tìm thấy dữ liệu Cookie hợp lệ!');
+        return;
+      }
+
+      await importCookies(cookieList, domainVal);
+    });
+  }
+
+  if (clearCookieBtn && cookieArea) {
+    clearCookieBtn.addEventListener('click', () => {
+      cookieArea.value = '';
+      if (cookieStatusBadge) cookieStatusBadge.textContent = 'Sẵn sàng';
+    });
+  }
+
+  // Parse Cookie string or JSON format into structured cookie objects
+  function parseCookies(rawInput, defaultDomain) {
+    const cookies = [];
+    const trimmed = rawInput.trim();
+    if (!trimmed) return cookies;
+
+    let domain = defaultDomain.trim();
+    if (!domain.startsWith('.')) {
+      if (!domain.startsWith('http://') && !domain.startsWith('https://')) {
+        domain = '.' + domain;
+      }
+    }
+
+    // Try parsing JSON format
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        const list = Array.isArray(parsed) ? parsed : [parsed];
+        list.forEach(item => {
+          if (item && (item.name || item.key)) {
+            cookies.push({
+              name: String(item.name || item.key).trim(),
+              value: String(item.value || '').trim(),
+              domain: (item.domain || domain).trim(),
+              path: item.path || '/'
+            });
+          }
+        });
+        if (cookies.length > 0) return cookies;
+      } catch (e) {}
+    }
+
+    // Parse String Header format (c_user=123; xs=456) or Netscape format lines
+    const lines = trimmed.split(/[\r\n;]+/);
+    lines.forEach(line => {
+      const parts = line.trim().split('=');
+      if (parts.length >= 2) {
+        const name = parts[0].trim();
+        const value = parts.slice(1).join('=').trim();
+        if (name && !name.startsWith('#') && !name.startsWith('//')) {
+          cookies.push({
+            name: name,
+            value: value,
+            domain: domain,
+            path: '/'
+          });
+        }
+      }
+    });
+
+    return cookies;
+  }
+
+  // Import cookie list into browser using chrome.cookies API
+  async function importCookies(cookieList, domainInputStr) {
+    if (typeof chrome === 'undefined' || !chrome.cookies) {
+      alert('Trình duyệt chưa hỗ trợ chrome.cookies API!');
+      return;
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+    if (cookieStatusBadge) cookieStatusBadge.textContent = 'Đang nạp...';
+
+    for (let c of cookieList) {
+      let cookieDomain = c.domain || domainInputStr;
+      if (!cookieDomain.startsWith('.')) cookieDomain = '.' + cookieDomain.replace(/^https?:\/\//, '');
+
+      const cleanHost = cookieDomain.replace(/^\./, '');
+      const url = `https://www.${cleanHost}/`;
+
+      try {
+        await new Promise((resolve) => {
+          chrome.cookies.set({
+            url: url,
+            name: c.name,
+            value: c.value,
+            domain: cookieDomain,
+            path: c.path || '/',
+            secure: true,
+            sameSite: 'no_restriction'
+          }, (result) => {
+            if (chrome.runtime.lastError || !result) {
+              failCount++;
+            } else {
+              successCount++;
+            }
+            resolve();
+          });
+        });
+      } catch (e) {
+        failCount++;
+      }
+    }
+
+    if (cookieStatusBadge) {
+      cookieStatusBadge.textContent = `Nạp ${successCount}/${cookieList.length}`;
+    }
+
+    alert(`Đã Import thành công ${successCount} cookie!${failCount > 0 ? ` (${failCount} thất bại)` : ''}`);
+  }
+
   // Initial load
   loadState();
 });

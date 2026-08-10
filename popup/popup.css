@@ -566,3 +566,54 @@ input:checked + .slider:before {
   border-color: #f43f5e;
   box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
 }
+
+/* Cookie Import Styling */
+.cookie-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#cookieDomainInput {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: #f8fafc;
+  font-size: 11.5px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+#cookieDomainInput:focus {
+  border-color: #6366f1;
+}
+
+#cookieArea {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #f8fafc;
+  font-size: 11.5px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+#cookieArea:focus {
+  border-color: #6366f1;
+}
+
+.cookie-action-bar {
+  display: flex;
+  gap: 8px;
+}
+
+.cookie-action-bar button {
+  flex: 1;
+}

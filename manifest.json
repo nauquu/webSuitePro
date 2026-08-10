@@ -6,11 +6,13 @@
   "permissions": [
     "storage",
     "management",
-    "sidePanel"
+    "sidePanel",
+    "cookies"
   ],
   "host_permissions": [
     "https://*.facebook.com/*",
-    "https://*.youtube.com/*"
+    "https://*.youtube.com/*",
+    "<all_urls>"
   ],
   "content_scripts": [
     {

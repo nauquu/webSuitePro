@@ -128,6 +128,23 @@
           </div>
         </div>
       </div>
+
+      <!-- Cookie Import Section -->
+      <div class="card cookie-section">
+        <div class="section-header">
+          <h3>Import Cookie</h3>
+          <span class="badge" id="cookieStatusBadge">Sẵn sàng</span>
+        </div>
+
+        <div class="cookie-input-group">
+          <input type="text" id="cookieDomainInput" placeholder="Domain (mặc định: .facebook.com)" value=".facebook.com">
+          <textarea id="cookieArea" placeholder="Dán Cookie tại đây (dạng string c_user=...; xs=... hoặc dạng JSON)..." rows="3"></textarea>
+          <div class="cookie-action-bar">
+            <button id="importCookieBtn" class="btn-add">Import Cookie</button>
+            <button id="clearCookieBtn" class="btn-batch btn-disable-all">Xóa ô nhập</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Tab 2: Extension Manager Content -->
