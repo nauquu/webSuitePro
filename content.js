@@ -46,9 +46,27 @@
       : '';
   }
 
+  // Check if current page is Messenger OR if element is inside a Messenger chat window/dialog/sidebar
+  function isMessengerElement(el) {
+    if (window.location.href.includes('/messages/')) return true;
+    if (!el) return false;
+    try {
+      if (el.closest(
+        'div[role="dialog"], div[aria-label*="Chat" i], div[aria-label*="Trò chuyện" i], ' +
+        'div[aria-label*="Messenger" i], div[data-pagelet^="ChatTab"], div[role="region"][aria-label*="Chat" i], ' +
+        'div[role="region"][aria-label*="Trò chuyện" i], [aria-label="Cuộc trò chuyện"], [aria-label="Chats"], ' +
+        'div[class*="messenger" i], div[class*="Chat" i], [data-testid*="messenger" i], [data-testid*="chat" i]'
+      )) {
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
   // Check if an element or container is inside a Comment section or IS a comment item
   function isCommentElement(el) {
     if (!el) return false;
+    if (isMessengerElement(el)) return true;
     try {
       if (el.closest(
         'div[aria-label*="bình luận" i], div[aria-label*="comment" i], ' +
@@ -289,7 +307,7 @@
     }
 
     if (container) {
-      if (isCommentElement(container)) return null;
+      if (isCommentElement(container) || isMessengerElement(container)) return null;
 
       const role = container.getAttribute('role');
       if (unsafeRoles.includes(role) || container.nodeName === 'BODY' || container.nodeName === 'HTML') {
@@ -579,6 +597,7 @@
   // Global scanner to catch ads from any element directly
   function scanGlobalAds() {
     if (!config.blockAdsEnabled) return;
+    if (window.location.href.includes('/messages/')) return;
 
     // 1. Direct query for elements with ad attributes or ad links
     const adTargets = document.querySelectorAll(
@@ -918,6 +937,8 @@
 
   // Scan current DOM for posts and ads
   function runScanner() {
+    if (window.location.href.includes('/messages/')) return;
+    
     const posts = document.querySelectorAll('div[role="article"], div[data-pagelet^="FeedUnit"], div[aria-posinset], div[data-pagelet^="Feed"]');
     posts.forEach(processPost);
 
