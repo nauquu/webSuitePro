@@ -46,14 +46,15 @@
       : '';
   }
 
-  // Check if current page is Messenger OR if element is inside any Messenger chat window/dialog/sidebar/bubble
+  // Check if current page is Messenger OR if element is inside any Messenger chat window/dialog/sidebar/bubble/dock
   function isMessengerElement(el) {
     if (window.location.href.includes('/messages/')) return true;
     if (!el) return false;
     try {
       if (el.closest(
         'div[role="dialog"], div[aria-label*="Chat" i], div[aria-label*="Trò chuyện" i], ' +
-        'div[aria-label*="Messenger" i], div[data-pagelet^="ChatTab"], div[role="region"][aria-label*="Chat" i], ' +
+        'div[aria-label*="Messenger" i], div[aria-label*="Đoạn chat" i], div[data-pagelet*="Chat"], ' +
+        'div[data-pagelet*="Dock"], div[data-pagelet*="Message"], div[role="region"][aria-label*="Chat" i], ' +
         'div[role="region"][aria-label*="Trò chuyện" i], [aria-label="Cuộc trò chuyện"], [aria-label="Chats"], ' +
         'div[class*="messenger" i], div[class*="Chat" i], [data-testid*="messenger" i], [data-testid*="chat" i], ' +
         'div[data-scope="messages_table"], div[role="gridcell"], div[role="row"], div[class*="message" i], [aria-label="Tin nhắn"]'
@@ -283,21 +284,31 @@
     return orderedChars.filter(Boolean).join('').trim();
   }
 
-  // Target post container (Strictly guarded against targeting comments or inner elements)
+  // Target post container (Strictly guarded against targeting comments, Messenger, or non-feed elements)
   function getPostContainer(node) {
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return null;
+    if (isMessengerElement(node) || isCommentElement(node)) return null;
+
+    // STRICT GUARD: Reject any node inside Messenger chat popups, chat docks, or dialogs
+    if (node.closest('div[role="dialog"], [data-pagelet*="Chat"], [data-pagelet*="Dock"], [data-pagelet*="Message"], [data-scope="messages_table"]')) {
+      return null;
+    }
+
+    // STRICT GUARD: Must be inside a Feed container (News Feed, Group Feed, Profile Wall Feed)
+    const feedParent = node.closest('div[role="feed"], div[data-pagelet^="FeedUnit"], div[aria-posinset], div[data-dedup-key]');
+    if (!feedParent) return null;
 
     const unsafeRoles = ['feed', 'main', 'navigation', 'banner', 'complementary', 'grid', 'table'];
 
     // 1. First search for top-level Feed Unit containers
     let container = node.closest('div[data-pagelet^="FeedUnit"], div[aria-posinset], div[data-dedup-key]');
 
-    // 2. Fallback to div[role="article"], BUT pick top-most container and exclude comments
+    // 2. Fallback to div[role="article"], BUT pick top-most container inside feed and exclude comments & Messenger
     if (!container) {
       const articles = [];
       let curr = node.closest('div[role="article"]');
-      while (curr) {
-        if (!isCommentElement(curr)) {
+      while (curr && feedParent.contains(curr)) {
+        if (!isCommentElement(curr) && !isMessengerElement(curr)) {
           articles.push(curr);
         }
         curr = curr.parentElement ? curr.parentElement.closest('div[role="article"]') : null;
@@ -326,6 +337,7 @@
   // Check if post is an Ad / Sponsored (Defeats Obfuscated Spans, Canvas, Object, SVG Sprites, Link Indices, Aria-Labelledby & CSS Order)
   function isAdPost(post) {
     if (!config.blockAdsEnabled) return false;
+    if (isMessengerElement(post) || isCommentElement(post)) return false;
 
     const adRegex = /^(Ad|Sponsored|Được tài trợ|Quảng cáo|Suggested for you|Được đề xuất)(\s*[\cdot•·|\n\r]|$)/i;
 
@@ -335,11 +347,13 @@
       return true;
     }
 
-    // 1. CANVAS Detection (FB draws "Ad" / "Sponsored" onto a 2D Canvas in post header)
-    const headerCanvas = post.querySelectorAll('h4+div canvas, h5+div canvas, h6+div canvas, a canvas, span canvas, div[dir="auto"] canvas, [role="heading"]+div canvas');
-    for (let canvas of headerCanvas) {
-      if (canvas.width > 0 && canvas.width < 180) {
-        return true;
+    // 1. CANVAS Detection (FB draws "Ad" / "Sponsored" onto a 2D Canvas in post header ONLY)
+    if (!isMessengerElement(post) && !isCommentElement(post)) {
+      const headerCanvas = post.querySelectorAll('h4+div canvas, h5+div canvas, [role="heading"]+div canvas');
+      for (let canvas of headerCanvas) {
+        if (canvas.width > 0 && canvas.width < 120 && !isMessengerElement(canvas)) {
+          return true;
+        }
       }
     }
 
